@@ -53,17 +53,36 @@ class ItemBuilder {
         const button = document.createElement("button");
         button.className = "circular-btn";
 
+        const sidePanelItemsWrapper = document.querySelector(".side-box-item-wrapper");
         if (type === "DECREMENT") {
             button.className += " red-btn";
             button.innerHTML = "–";
+            button.addEventListener("click", function() {
+                --button.parentElement.querySelector(".item-counter").innerHTML;
+                if (button.parentElement.querySelector(".item-counter").innerHTML === "0") {
+                    button.parentElement.parentElement.parentElement.remove();
+                }
+                updateSidePanelData();
+                updateSavedData(sidePanelItemsWrapper.innerHTML);
+            });
         }
         else if (type === "INCREMENT") {
             button.className += " green-btn";
             button.innerHTML = "+";
+            button.addEventListener("click", function() {
+                ++button.parentElement.querySelector(".item-counter").innerHTML;
+                updateSidePanelData();
+                updateSavedData(sidePanelItemsWrapper.innerHTML);
+            });
         }
         else {
             button.className += " white-btn";
             button.innerHTML = "×";
+            button.addEventListener("click", function() {
+                button.parentElement.parentElement.parentElement.remove();
+                updateSidePanelData();
+                updateSavedData(sidePanelItemsWrapper.innerHTML);
+            });
         }
         
         return button;
@@ -167,24 +186,72 @@ function addItem(name, size, weight, price, iconName) {
         if (item.querySelector(".label").innerHTML === name) {
             ++item.querySelector(".item-counter").innerHTML;
             updateSidePanelData();
+            updateSavedData(document.querySelector(".side-box-item-wrapper").innerHTML);
             return;
         }
     }
 
     const builder = new ItemBuilder(name, size, weight, price, iconName);
     document.querySelector(".side-box-item-wrapper").appendChild(builder.getItem());
-    updateSidePanelData();
     handleSidePanelOverflow();
+    updateSidePanelData();
+    updateSavedData(document.querySelector(".side-box-item-wrapper").innerHTML);
 }
 
 function loadData() {
-    /* Debug localStorage wiper, REMOVE FOR RELEASE! */
-    window.localStorage.setItem("saved-data", "");
-
     const sidePanelItemsWrapper = document.querySelector(".side-box-item-wrapper");
-    sidePanelItemsWrapper.innerHTML = window.localStorage.getItem("saved-data");
+    sidePanelItemsWrapper.innerHTML = getSavedData();
+    initItemCartClearButton();
+    reinitialiseButtonListeners();
     handleSidePanelOverflow();
     updateSidePanelData();
+}
+
+function initItemCartClearButton() {
+    const sidePanelItemsWrapper = document.querySelector(".side-box-item-wrapper");
+    const clearButton = sidePanelItemsWrapper.parentElement.querySelector(".clear-cart-items");
+    clearButton.addEventListener("click", function() {
+        sidePanelItemsWrapper.innerHTML = "";
+        updateSidePanelData();
+        updateSavedData(sidePanelItemsWrapper.innerHTML);
+    });
+}
+
+function reinitialiseButtonListeners() {
+    const sidePanelItemsWrapper = document.querySelector(".side-box-item-wrapper");
+    for (const item of sidePanelItemsWrapper.children) {
+        item.querySelector(".red-btn").addEventListener("click", function() {
+            const button = item.querySelector(".red-btn");
+            --button.parentElement.querySelector(".item-counter").innerHTML;
+            if (button.parentElement.querySelector(".item-counter").innerHTML === "0") {
+                button.parentElement.parentElement.parentElement.remove();
+            }
+            updateSidePanelData();
+            updateSavedData(sidePanelItemsWrapper.innerHTML);
+        });
+
+        item.querySelector(".green-btn").addEventListener("click", function() {
+            const button = item.querySelector(".green-btn");
+            ++button.parentElement.querySelector(".item-counter").innerHTML;
+            updateSidePanelData();
+            updateSavedData(sidePanelItemsWrapper.innerHTML);
+        });
+
+        item.querySelector(".white-btn").addEventListener("click", function() {
+            const button = item.querySelector(".white-btn");
+            button.parentElement.parentElement.parentElement.remove();
+            updateSidePanelData();
+            updateSavedData(sidePanelItemsWrapper.innerHTML);
+        });
+    }
+}
+
+function getSavedData() {
+    return window.localStorage.getItem("saved-data");
+}
+
+function updateSavedData(newData) {
+    window.localStorage.setItem("saved-data", newData);
 }
 
 function updateSidePanelData() {

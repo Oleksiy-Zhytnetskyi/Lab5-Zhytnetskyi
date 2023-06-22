@@ -244,6 +244,7 @@ section.side-box > section.top-element > section.clear-cart-items {
     font-size: 11px;
     padding-left: 3px;
     padding-right: 10px;
+    user-select: none;
 }
 
 section.side-box-item-wrapper {
