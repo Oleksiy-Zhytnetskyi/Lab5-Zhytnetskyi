@@ -146,6 +146,16 @@ class ItemBuilder {
     }
 }
 
+/* Global Contants */
+const FILTERS = new Object({
+    "Усі": [],
+    "М'ясні": [4, 6, 7],
+    "З ананасами": [1, 3, 4, 6, 7],
+    "З грибами": [0, 2, 4, 6, 7],
+    "З морепродуктами": [0, 1, 2, 3, 4, 5],
+    "Вега": [0, 1, 2, 3, 5, 6, 7]
+});
+
 /* Event Listeners */
 const purchaseButtons = document.querySelectorAll(".buy-item-btn");
 
@@ -202,9 +212,42 @@ function loadData() {
     const sidePanelItemsWrapper = document.querySelector(".side-box-item-wrapper");
     sidePanelItemsWrapper.innerHTML = getSavedData();
     initItemCartClearButton();
+    initFilters();
     reinitialiseButtonListeners();
     handleSidePanelOverflow();
     updateSidePanelData();
+}
+
+function initFilters() {
+    const allFilters = document.querySelector(".filter-wrapper").children;
+    for (const filter of allFilters) {
+        filter.addEventListener("click", function() {
+            if (filter.className !== "active") {
+                const oldFilter = document.querySelector(".active");
+                oldFilter.className = "";
+                oldFilter.style.backgroundColor = "inherit";
+                oldFilter.style.color = "darkorange";
+
+                filter.className = "active";
+                filter.style.backgroundColor = "rgb(253, 171, 18)";
+                filter.style.color = "whitesmoke";
+                filter.style.borderRadius = "4px";
+
+                applyFilter(filter.innerHTML);
+            }
+        });
+    }
+}
+
+function applyFilter(filterName) {
+    const allItems = document.querySelector(".grid-container").children;
+    const excludedItems = FILTERS[filterName];
+
+    document.querySelector(".filter-label-wrapper > .second").innerHTML = allItems.length - excludedItems.length;
+    for (let i = 0; i < allItems.length; i++) {
+        if (excludedItems.indexOf(i) !== -1) allItems[i].style.display = "none";
+        else allItems[i].style.display = "block";
+    }
 }
 
 function initItemCartClearButton() {
