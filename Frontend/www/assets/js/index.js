@@ -40,6 +40,7 @@ class ItemBuilder {
         const pricing = document.createElement("section");
         pricing.className = "pricing";
 
+        pricing.setAttribute("data-single-price", this.price);
         pricing.appendChild(this.getSpan(this.price + " грн", "total-cost"));
         pricing.appendChild(this.getButton("DECREMENT"));
         pricing.appendChild(this.getSpan("1", "item-counter"));
@@ -59,6 +60,9 @@ class ItemBuilder {
             button.innerHTML = "–";
             button.addEventListener("click", function() {
                 --button.parentElement.querySelector(".item-counter").innerHTML;
+                button.parentElement.querySelector(".total-cost").innerHTML = 
+                    Number(button.parentElement.querySelector(".total-cost").innerHTML.replace(" грн", "")) -
+                    Number(button.parentElement.getAttribute("data-single-price")) + " грн";
                 if (button.parentElement.querySelector(".item-counter").innerHTML === "0") {
                     button.parentElement.parentElement.parentElement.remove();
                 }
@@ -71,6 +75,9 @@ class ItemBuilder {
             button.innerHTML = "+";
             button.addEventListener("click", function() {
                 ++button.parentElement.querySelector(".item-counter").innerHTML;
+                button.parentElement.querySelector(".total-cost").innerHTML = 
+                    Number(button.parentElement.querySelector(".total-cost").innerHTML.replace(" грн", "")) + 
+                    Number(button.parentElement.getAttribute("data-single-price")) + " грн";
                 updateSidePanelData();
                 updateSavedData(sidePanelItemsWrapper.innerHTML);
             });
@@ -195,6 +202,9 @@ function addItem(name, size, weight, price, iconName) {
     for (const item of items) {
         if (item.querySelector(".label").innerHTML === name) {
             ++item.querySelector(".item-counter").innerHTML;
+            item.querySelector(".total-cost").innerHTML = 
+                Number(item.querySelector(".total-cost").innerHTML.replace(" грн", "")) + 
+                Number(item.querySelector(".pricing").getAttribute("data-single-price")) + " грн";
             updateSidePanelData();
             updateSavedData(document.querySelector(".side-box-item-wrapper").innerHTML);
             return;
@@ -266,6 +276,9 @@ function reinitialiseButtonListeners() {
         item.querySelector(".red-btn").addEventListener("click", function() {
             const button = item.querySelector(".red-btn");
             --button.parentElement.querySelector(".item-counter").innerHTML;
+            button.parentElement.querySelector(".total-cost").innerHTML = 
+                Number(button.parentElement.querySelector(".total-cost").innerHTML.replace(" грн", "")) -
+                Number(button.parentElement.getAttribute("data-single-price")) + " грн";
             if (button.parentElement.querySelector(".item-counter").innerHTML === "0") {
                 button.parentElement.parentElement.parentElement.remove();
             }
@@ -276,6 +289,9 @@ function reinitialiseButtonListeners() {
         item.querySelector(".green-btn").addEventListener("click", function() {
             const button = item.querySelector(".green-btn");
             ++button.parentElement.querySelector(".item-counter").innerHTML;
+            button.parentElement.querySelector(".total-cost").innerHTML = 
+            Number(button.parentElement.querySelector(".total-cost").innerHTML.replace(" грн", "")) + 
+            Number(button.parentElement.getAttribute("data-single-price")) + " грн";
             updateSidePanelData();
             updateSavedData(sidePanelItemsWrapper.innerHTML);
         });
@@ -303,8 +319,7 @@ function updateSidePanelData() {
     const sidePanelItemsWrapper = document.querySelector(".side-box-item-wrapper");
     for (const item of sidePanelItemsWrapper.children) {
         ++itemsTotal;
-        priceTotal += Number(item.querySelector(".total-cost").innerHTML.replace(" грн", "")) * 
-                        Number(item.querySelector(".item-counter").innerHTML);
+        priceTotal += Number(item.querySelector(".total-cost").innerHTML.replace(" грн", ""));
     }
 
     document.querySelector(".item-count-wrapper > .second").innerHTML = itemsTotal;
